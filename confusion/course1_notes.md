@@ -422,125 +422,512 @@ export default App;
 
 ```
 
+# React Components
 
+A react component is a set of React elements that collectively
+render a part of the screen.
+Components act as a grouping of React elements that share
+some common purpose.
+Components enable dev to split UI into independent, reusable, pieces.
+Components also accept inputs
+Components can be of different kinds.
 
+* always start user defined components with capital letters.
 
+# React components: State and props -
 
+state:
 
+each component can store its own local info in its "state"
+This information is:
+    --  only class components can store state, but not
+        all components need to store state.
+    --  Local info is private and fully controlled by the component
+    --  component state can be passed to children
+        of component through props.
+    -- usually declared in the constructor method
 
+example of state being declared:
 
+```jsx
 
+class Menu extends Component{
 
+constructor(props){
+    super(props);
 
+    this.state = {selectedDish:null}
+     }
+}
+```
 
+We're defining a new class, Menu, that's an ext of the
+template JS component.
 
+Within defining the constructor method, we initialise a variable
+called 'this.state'.  this.state is a JS object
+contains the state info for the component.
 
+#Updating a component state
 
+All component state updates have to be implemented through
+the standard setState() method.
 
+```
+onDishSelect(dish){
+    this.setState({
+        selectedDish:dish
+    });
+}
 
+```
 
+In this method, we're creating a application specific
+wrapper method around the standard setState method.
 
+This wrapper method, onDishSelect, takes in a variable
+called 'dish', probably triggered by a user selecting
+a dish in ui, and runs the setstate method to update
+its 'selectedDish' state to the user's dish choice.
 
+# lifting the state up
 
+We're almost always working within a hierarchy of
+components. Sometimes, it's required that a parent component
+change state as a result of a child changing state.
+This is called lifting the state up the tree.
 
+example: say 5 child components of one parent all need
+to be the same state. If a change is required, the easiest
+method to change all 5 children at once is to update the
+parent state.
 
+# props
+JSX attributes are passed into a component as a single object
+called 'props'. This is short for "properties"
 
+All child components receive attributes of parent component
+as props.
 
 
+# handling events:
 
+Handling events is similar to the way you handle
+events on DOM elements.
+* use camelCase to specify events
+* pass function as the event handler.
 
 
+onclick event handler -
+```
+<Card onclick={() => this.onDishSelect(dish)}>
+```
+We are specifying an onclick event handler,
+where we're passing in an arrow function as a parameter.
 
+# lists and keys -
 
+lists are handled the same as JS generally
 
+```
+const menu = this.props.dishes.map((dish) => {
 
+    return (
+        <div key (dish.id)>
+            <h1> {dish.name} </h1>
+            <p>  {dish.description}</p>
+        </div>
+        );
+        });
+```
+
+We want to iterate over all the dishes held in the data
+this.props.dishes. For each dish, we want to create
+some content that's a header and some text.
+
+We'll use the JS operator map to map our JS array
+of dishes to a list of HTML items.
+
+We do this by
+1. extract the array from this.props.dishes
+2. for each item in array, we map to a list item
+3. for each item, the dish id, dish.name dish.description
+is taken as values in return output
+4. final output is a list of items returned.
+
+Note, input is an array -- json object
+it's a list of dictionaries.
+[{id:, name:, description:,} {id:.....}]
+
+For each element (dict of attributes), we want to map
+it to some html content. We're expecting a list back
+(not an array) where each item in list represents
+one element in original JS array, converted through
+process outlined in return function.
+
+# component life cycle
+
+A react application can be thought of as a set of react-components
+combined together to all the content in the screen.
+
+When needed in the view, each component will be added into the
+DOM.
+
+A component will pass through a life cycle of:
+1. not existing
+2. existing but not in view
+3. mounted by React Application and entered into view
+4... various updating of component to change content.
+5. unmounted by React Application and exits from view
+6. not existing
+
+Several lifecycle methods are available in each stage of component's lifecylce.
+These lifecycle methods will be invoked by React as component
+passes through stages of life cycle.
+
+# Mounting life-cycle methods:
+
+called when an instance of is being created and inserted
+into the DOM.
+
+1. constructor()
+2. render()
+3. componentDidMount()
+
+Usually, these methods are called in this order by the React Application.
+These methods will be run automatically by the react app
+aslong as they exist in component's js file.
+
+1. constructor -
+
+called when component is instantiated and is always the
+first method called from any component.
 
+```
+ constructor(props) {
+        super(props);
 
+        this.state = {
+            selectedDish: null
+        }
+    }
 
+```
 
+2. render -
+
+Typically, this method is executed after constructor() and
+tells React the content that needs to be displayed in viewport.
 
+In this case, we're iterating through an inherited array,
+this.props.dishes, using map, and returning a list of
+of html card objects.
 
+
+```
+render(){
+         const menu = this.props.dishes.map((dish) => {
+             return (
+                 <div className="col-12 col-md-5 m-1">
+                     <Card  key={dish.id}
+                            onClick={() => this.onDishSelect(dish)}>
+                         <CardImg width="100%" src={dish.image} alt={dish.name}/>
+                         <CardImgOverlay>
+                             <CardTitle> {dish.name} </CardTitle>
+                         </CardImgOverlay>
+                     </Card>
+                 </div>
+             );
+         });
 
+         return (
+             <div className="container">
+                 <div className="row">
+                     {menu}
+                 </div>
+                 <div className="row">
+                     <div  className="col-12 col-md-5 m-1">
+                         {this.renderDish(this.state.selectedDish)}
+                     </div>
+                 </div>
+             </div>
+         );
+     }
+ }
+```
+3. componentDidMount
 
+Third method executed after component instance created and
+content rendered. This method is often used to perform
+tasks that require the existence of component/content.
 
+This example just writes a log message.
 
+```
+ componentDidMount(){
+        console.log('Menu Component has been mounted');
+    }
 
+```
 
+# life cycle methods for updating
+
+1. getDerivedStateFromProps()
+2. shouldComponentUpdate()
+3. Render()
+4. getSnapshotBeforeUpdate()
+5. componentDidUpdate()
+
+2. shouldComponentUpdate:
+
+You can return false from shouldComponentUpdate: to tell React that
+this component doesn't ever need to be updated when re-rendering DOM.
+
+3. Render() --
+called every time component is re-rendered.
+
+4. getSnapshotBeforeUpdate()
+Save some kind of info before view is re-rendered. You could use this
+to store the position of the scroll so the placement is the same
+on the new view.
+
+5. componentDidUpdate()
+Used to check that a view has been updated correctly.
+
+
+
+# state vs stateless  components (many terms, similar meanings) --
+
+React doesn't have any standard component classifications but a group
+of terms has arisen to classify components.
+
+Informal Component definitions:
+* Presentational vs Container
+* Skinny vs Fat
+* Dumb vs Smart
+
+# Presentation vs Container Components.
+
+Presentation components:
+
+mainly concerned with rendering view (markup, styles)
+they render the view based on inherited data (this.props)
+often don't maintain their own local state attributes (this.state....)
+(although they may retain some ui states, like with dialogue boxes,
+but don't worry about the APPLICATION state).
+
+Pure Presentational components are stateless children that inherit
+data via props and generate content for the view.
+
+Container components:
+Responsible for tracking all/part of state of Application
+Responsible for making things work (fetching data/processing data...)
+Store state and pass data to presentational component children as props.
+They often don't generate any content towards view and act
+as data stores/processors for presentational cocmponents.
+
+# Skinny vs Fat components
+Skinny: purely responsible for rendering view
+Fat: have other, more complex, data responsibilities.
+
+# Dumb vs Smart - similar to Skinny vs Fat.
+
+# Class components vs Functional Components:
+
+Class components -
+So far, Menu, Main, DishDetail are all class components -
+where we extended the React Component class to define our own class components.
+
+Class components:
+1. generated by ext React Component class
+2. Need to implement render() method that returns view
+3. Can have local state
+4. Lifecycle hooks possible
+
+Functional Components:
+
+Very simple components, that don't need local state or lifecylce hooks,
+can be generated on the fly by a JS function.
+
+1. generated by defining JS function that returns a React element/collection
+   of react elements that define a view
+2. Can't have local state
+3. Can't have lifecycle hooks
+4. receives a 'props' object a param
+
+Why use a functional component?
+
+It's common practice to have the view rendered by one, functional, component
+that inherits all the data as props and returns view elements.
+
+
+```
+    function RenderMenuItem({dish, onClick}){
+        return(
+            <Card onClick={() => onClick(dish.id)}>
+                <CardImg width="100%" src={dish.image} alt={dish.name}/>
+                <CardImgOverlay>
+                    <CardTitle> {dish.name} </CardTitle>
+                </CardImgOverlay>
+            </Card>
+        );
+    }
+
+    const Menu = {props} => {
+        const menu = props.dishes.map((dish) => {
+            return (
+                <div className="col-12 col-md-5 m-1" key={dish.id}>
+                   <RenderMenuItem dish={dish} onClick={(props.onClick)}/>
+                </div>
+            );
+        });
+        return (
+            <div className="container">
+                <div className="row">
+                    {menu}
+                </div>
+            </div>
+        );
+    }
+```
+
+# React Virtual DOM:
+
+There's a very important distinction between the Browser DOM (often just called 'the DOM')
+and the React Virtual DOM.
+
+Browser DOM: browser object, every change to a web page is enacted through changing
+the browser DOM. Browsers monitor changes in the Browser DOM for signals to re-render
+the web page.
+
+Virtual DOM: React object, is a "lightweight" representation of the browser DOM.
+The React virtual DOM is an in-memory data structure of plain JS objects, whereas
+the browser DOM is contained in browser memory and has a far more complex data structure.
+
+Having a simpler, smaller and in-memory representation of the DOM allows the react
+app to manipulate objects much faster than if it tried to manipulate the browser DOM.
 
+The virtual DOM is recreated completely from scratch on every setState.
+
+Another benefit of using the virtual DOM is the 'diffing algorithm'
 
+React employs a diffing algorithm that detects changes to nodes
+by comparing a previous version of the VDOM to the current version.
 
+This algorithm works by setting the entire sub-tree of a component to update if
+it detects that two elements are of different types between versions.
+However, when manipulating lists of elements, we can use the key attribute of
+individual list items to hint that child elements are stable.  This allows the REACT
+developer with the ability to minimise re-rendering.
 
+# React Router
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+A typical react application may consist of of multiple "pages"
+This is to say,a react application has multiple views and requires a way
+for users to navigate between views.
+The React Router is the core component for navigating between views.
+The React router can also be leverage to create a growing kind of React
+applications - "single page" applications where all views are contained
+within one web page.
+
+# what is the react router?
+
+1. Enables navigation among views
+2. collection of navigational components:
+    * routing components
+    * route matching components
+    * navigation components
+3. Uses a browser-based book-markable urls as an instruction to navigate to
+   a client-generated view in your web app.
+   Each view has an associated URL and may also contain optional params
+   that determine the content rendered in the view.
+
+# web app routing:
+install react-router-dom into our application this provides the app with
+access to
+* router component <BrowserRouter>
+* hash router component <HashRouter> (only used if url hashing is required)
+* Route Matching components:
+    * <Route>, <Switch>, <Redirect>
+* Navigation components:
+    * <Link>, <NavLink>
+
+# Route, Redirect and Switch
+
+<Route> has two key props:
+props.path -- specifies the current locations pathname
+props.component -- specifies the corresponding view for the location
+
+<Redirect> defines the default url that the user will be navigated to if
+one of the url paths doesn't match a known location
+
+<switch> enables grouping together of several routes.
+         iterates over all its children and find the first route that matches
+         the path.
+
+# link and navlink
+
+<link>: creates links in your application
+      : rendered as <a> tags in HTML - as it performs a representation of
+        the <a href=www...> in a traditional HTML page.
+
+<NavLink> also attaches the active class to the link prop matches the current
+          location.
+
+
+# Traditional vs Single Page applications
+
+Traditional websites:
+
+Browsers request webpages when either the user clicks a link or types address
+into address bar.
+
+The get request is made to the web server for the content of the web page.
+The server processes the request, returns the .html page, which is DOWNLOADED
+onto the user's PC (cache) via the browser.
+
+This request-response cycle in repeated for any additional web pages the user
+requests.
+
+Request index.html ----->
+<---- Send index.html
+Request contactus.html --->
+<---- send contactus.html
+
+Problems:
+
+1. Inefficient: A lot of the content across pages is repeated (headers, footers, navbar...)
+2. Server strain: sites with large trees of pages can cause slow response times.
+3. Full re-rendering: every new page needs to be re-rendered from scratch.
+
+Single Page applications were developed to mediate some of issues 1-3.
+
+Single Page applications:
+
+* No need to reload the entire page
+* UX like a desktop/native application
+* most resources are retrieved with a single page load
+* redraw parts of the page when needed without requiring full server RR cycle.
+
+
+Request Web Application ------>
+<-------- Send Web app and all assets
+
+User clicks on link, new request ---->
+<----  Response with JSON data if required
+
+This approach replaces the numerous smaller downloads (each webpage) with
+one larger download (the whole web application).
+As all web application logic and assets are stored in browser cache, any
+subsequent requests may not be necessary to re-render page.
+Often, with SPA, only additional data (JSON) is required from server to
+render new content.
+
+Problems with SPA:
+1. poorer search engine optimization
+2. Partitioning the responsibility between client/server leaves a lot of work
+   on the browser side, which can cause other problems.
+3. Maintaining history
+4. Analytics is harder - it's harder to track in-page activity than across page activity
+5. Speed of initial page load.
 
