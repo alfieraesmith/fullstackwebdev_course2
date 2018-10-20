@@ -875,6 +875,23 @@ one of the url paths doesn't match a known location
           location.
 
 
+React Router Paramaters:
+
+Passing params as additional sections of the url, through the router, is
+a common method for showing content conditional on user requests.
+
+e.g. /menu/42
+
+* 42 is a parameter added onto the url for our menu view
+
+We tell the react router to pass '42' as a route parameter by
+creating a token "page/:token"
+e.g. "menu/:id"
+
+We then use string concatenation (via ES6's `` syntax) to build the route.
+<Link to={`/Menu/${dish.id}`} />
+
+
 # Traditional vs Single Page applications
 
 Traditional websites:
@@ -930,4 +947,43 @@ Problems with SPA:
 3. Maintaining history
 4. Analytics is harder - it's harder to track in-page activity than across page activity
 5. Speed of initial page load.
+
+# Controlled Forms:
+
+Forms   - means for users to supply data to web applications
+        - cohesive, effective and compelling data entry experience
+        - general term for a broad range of different common data entry vehicles
+            1. log in boxes
+            2. placing orders, reserving tables etc.
+            3. submitting feedback or comments
+            4. requesting company response.
+
+HTML forms -
+<form>
+</form>
+Form elements:
+<input> - type: text, password, submit, radio, checkbox, date....
+<textarea>
+<button>
+<select>
+
+React components model the same functionality as HTML <form> tags. The components vary
+but all compile into some type of <form> tags before being rendered as webpage.
+
+Controlled components make the react component control the form that it renders
+1. single source of truth
+2. form state tied to component state. User submits data, which updates component state.
+3. Component can also valdiate date entered by checking its own state values.
+
+Every state mutation will have an associated handler function. The handler functions
+update the state of the react component in response to user actions on the form.
+Every user action should have a matching associated handler functio.
+
+
+
+
+
+
+
+
 

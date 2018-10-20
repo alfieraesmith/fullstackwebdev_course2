@@ -1,7 +1,10 @@
 <component name="ProjectDictionaryState">
   <dictionary name="polecat1">
     <words>
+      <w>firstname</w>
+      <w>lastname</w>
       <w>ristorante</w>
+      <w>telnum</w>
     </words>
   </dictionary>
 </component>
