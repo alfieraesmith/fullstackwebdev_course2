@@ -6,54 +6,54 @@ import About from './AboutComponent';
 import DishDetail from './DishdetailComponent';
 import Header from './HeaderComponent';
 import Footer from './FooterComponent';
-import {DISHES} from '../shared/dishes';
-import {COMMENTS} from '../shared/comments';
-import {LEADERS} from '../shared/leaders';
-import {PROMOTIONS} from '../shared/promotions';
+import {Switch, Route, Redirect, withRouter} from 'react-router-dom';
+import {connect} from 'react-redux';
 
-
-import {Switch, Route, Redirect} from 'react-router-dom';
+// maps redux store state into props that become available to component 
+// we need to map every redux store state to the equivalent needed in props. 
+const mapStateToProps = state => {
+    return {
+        dishes: state.dishes,
+        comments: state.comments,
+        promotions: state.promotions,
+        leaders: state.leaders
+    }
+};
 
 class Main extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            dishes: DISHES,
-            comments:COMMENTS,
-            promotions:PROMOTIONS,
-            leaders:LEADERS
-        };
     }
     // we want to display a featured dish, promotion, leader on the home page (dish.featured=TRUE)
     // set dish prop in Home page component to the dish in DISHES where featured is True
     // repeat for LEADERS and PROMOTIONS arrays.
-
+    
     render() {
         const HomePage = () => {
             return (
                 <Home
-                    dish={this.state.dishes.filter( (dish) =>  dish.featured === true)[0]}
-                    promotion={this.state.promotions.filter( (promo) =>  promo.featured === true)[0]}
-                    leader={this.state.leaders.filter( (leader) =>  leader.featured === true)[0]}
+                    dish={this.props.dishes.filter( (dish) =>  dish.featured === true)[0]}
+                    promotion={this.props.promotions.filter( (promo) =>  promo.featured === true)[0]}
+                    leader={this.props.leaders.filter( (leader) =>  leader.featured === true)[0]}
                 />
             );
         };
 
         const AboutPage = () => {
             return(
-                <About leaders={this.state.leaders}/>
+                <About leaders={this.props.leaders}/>
             );
-        }
+        };
 
         // note: match is a js array and a property of props. it contains url params as key value pairs.
         // we need to find the dish and comments that matches dish id in url param.
         const DishWithId = ({match}) => {
             return(
                 <DishDetail
-                     dish={this.state.dishes.filter(
+                     dish={this.props.dishes.filter(
                            (dish) => dish.id === parseInt(match.params.dishId, 10))[0]}
-                     comments = {this.state.comments.filter(
+                     comments = {this.props.comments.filter(
                          (comment) => comment.dishId === parseInt(match.params.dishId, 10))}
                 />
             );
@@ -65,7 +65,7 @@ class Main extends Component {
                 <Switch>
                     <Route path="/home" component={HomePage}/>
                     <Route exact path="/menu"
-                           component= {() => <Menu dishes={this.state.dishes}/>}
+                           component= {() => <Menu dishes={this.props.dishes}/>}
 
                     />
                     <Route exact path="/contactus" component={Contact}/>
@@ -79,6 +79,8 @@ class Main extends Component {
     }
 }
 
+export default withRouter(connect(mapStateToProps)(Main));
+
 /* Menu component will receive two props - props.dishes and props.onClick
  *  When onclick is a method that when invoked, will pass the dish id param to the this.onDishSelect
  *  function and invoke that function.
@@ -88,7 +90,7 @@ class Main extends Component {
   * We have the dishId provided by menu.onClick.
   * We need to lookup the related dish and provide that as input.
   *
-  * this.state.dishes --> variable with value DISHES (our JSON array of dishes)
+  * this.props.dishes --> variable with value DISHES (our JSON array of dishes)
   * .filter  --> Array function that returns a sub-array of all items where condition is true
   * {dish.id === this.sate.selectedDish}. this is a function that returns either
   * true or false.
@@ -124,7 +126,7 @@ tags above it are satisfied.
 
 Using arrow functions to assign props to components:
 There's NO difference between returning a component with props via -
-1. In-Line function: {() => <Menu dishes={this.state.dishes}/>}
+1. In-Line function: {() => <Menu dishes={this.props.dishes}/>}
 2. Constant Variable Function:
        const HomePage = () => {
             return (<Home/>);
@@ -132,12 +134,9 @@ There's NO difference between returning a component with props via -
 
 We could just as easily use:
 const Menu = () {
- return <Menu dishes = {this.state.dishes}/>;
+ return <Menu dishes = {this.props.dishes}/>;
 }
 
 and component = {() => <HomePage/> }
 
  */
-
-
-export default Main;
