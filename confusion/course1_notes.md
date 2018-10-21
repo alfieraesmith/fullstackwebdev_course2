@@ -979,6 +979,229 @@ Every state mutation will have an associated handler function. The handler funct
 update the state of the react component in response to user actions on the form.
 Every user action should have a matching associated handler functio.
 
+# uncontrolled components
+
+Usually, forms are implemented through controlled components where the every user
+action updates a state in the component. Furthermore, state changes are validated
+and error messages are displayed if the user enters invalid data.
+
+But, setting up controlled components is time-extensive as they require
+dev to write event handler for every state update.
+There are scenarios where a simple uncontrolled form is sufficient.
+
+Scenarios:
+1. Large amount of non-react JS code in application:
+            -- uncontrolled components allow for better integration between
+                REACT and non-React code.
+2. No data validation required
+
+Instead of writing an event handler for every state update (controlled comp),
+we use a ref to get form values from the DOM.
+
+# Model - View - Controller Framework:
+
+A (software/architectural) design pattern is a well-documented
+and/or frequently used solution to a recurring problem.
+The aim of reusing common patterns of design is to avoid 're-inventing'
+the wheel every time a software engineer solves a similar problem.
+
+The MVC framework is an example of a "software engineering architecture pattern":
+View: concerned with displaying info and content to the user.
+Model: stores domain state and logic. Provides means of manipulation application state.
+Controller: mediates between view and model.
+
+The aim of MVC (as with some competitors) is to isolate the domain logic from
+the user interface. The pieces of the application that display content should
+be completely divorced from the parts that make decisions.
+
+This "separation of concerns" allows software engineers to independently
+develop, test and maintain each part without harming the whole.
+
+# Model:
+
+* captures the whole state of the application - updated by controller
+* managed the behaviour and data of the application domain
+* responds to requests for info about the application state (usually req come from view)
+* responds to instructions to change state (usually from controller)
+* (event-driven systems) model notifies views when the info changes so that they re-render.
+
+# View:
+* renders the model into a form suitable for interaction
+    - typically this consists of varying user interface elements.
+* multiple views exist for a single model for different purposes.
+   - we call the collection of views, "The View"
+* viewport typically has a one-to-one correspondence with a display surface and
+   knows how to render to it.
+
+# Controller
+* Receives info from View and initiates a response by making calls on model objects.
+* Controller accepts inputs from user and instructs model to change state.
+* Controller may also tell View to re-render because of changes to Viewport.
+
+# React and MVC
+
+Initially 'React' was viewed as just the 'V' in the MVC where REACT components
+would just be used for the View.
+REACT is now considered suitable for building whole applications and is no
+longer marketed as solely the 'View'.
+
+A basic REACT application model is:
+
+One Main Component (parent of all components, stores state for all components)
+Some Container Components (used for business logic/presentation logic - stateful)
+Many Presentational Components (used for rendering different parts of  View - stateless)
+
+This works well for simple web applications but for more complex applications,
+with potentially 100s of components and many hierachies, states become impossible
+to manage with just a MAIN component.
+
+Facebook discovered this and tried to move to a more traditional MVC approach,
+using REACT components, and isolating all state in a Model.
+
+However - Facebook found many issues with using standard MVC architecture pattern
+1. Cascading updates: where on model state change leads to many others.
+2. decentralized mutations
+3. race conditions
+
+They then discarded traditional MVC in favor of the 'Flux architecture'
+
+# Flux architecture - a new software engineering pattern
+
+The salient feature of FLUX is a Unidirectional data flows
+This helps avoid the cascades of updates FB found using MVC approach with REACT.
+All state removed from controller components (including MAIN) and put into stores.
+
+Unidirectional data flow:
+
+Action --> Dispatcher ---> Store ---> View
+
+Store: one or more stores hold application state
+       DOES NOT EXPOSE "SETTERS" for controller views:
+            - Controller components cannot directly change the store.
+       The only way to change application state is by requesting the
+            - This is done through DISPATCHER components.
+       Stores expose "GETTERS" that component views can use to get application state
+            - The controller components then use presentational comp to update VIEW.
+
+Actions:  requests for store to change state
+          new actions are propagated through the system in response to user interactions
+          all actions are sent to dispatcher
+
+dispatcher: controlling unit for serialising actions into requests to the store.
+            mediates relationship between views and store via actions.
+
+views: subscribe to store
+       strictly speaking, only "controller" views subscribe to store.
+       presentational components do not subscribe to store.
+
+The main component (a type of controller view) gets state from STORE. Receives
+state by using GETTERs exposed by stores. Cannot directly update store.
+
+User interaction with View ---> Controller View sends action --> Dispatcher --> Store update
+
+# Redux
+
+A flux like approach and developed by Dan Abramov intended to be
+a "realisation" of the basic flux like architecture
+that improves on some of flux's issues.
+
+Inspired by 'Flux' but also 'ELM' and 'Immutable' approaches.
+
+Dan Abramov's 3 core principles for the Redux approach:
+
+1. Single source of truth
+    - single state object tree within a single store.
+    - FLUX permits multiple stores and requires coordination between stores.
+2. State is read-only (only getters, no setters)
+    - Changes should only be done through actions
+3. Changes are made with pure functions ("reducer" functions)
+    - takes previous state and an action, returns next state
+    - no mutation of previous state.
+
+
+* Adopted widely by REACT community but not tied to REACT.
+  Could also be used in an app based around a Angular or Backbone framework.
+* makes state mutations predictable. Prioritizes consistent and tracked
+  state changes.
+
+# Single Store and Single State Tree:
+
+The main benefits Abramov found when using a single store/single tree approach
+was that -
+* logging got a lot simpler, we can record all state changes as three items
+    - previous state, action, next state
+* API HANDLING:
+* Undo/redo approaches: walk back through state changes and undo any state
+                        changes to resolve bugs.
+* state persistence
+* time-travel debugging
+
+# REDUX data flow
+
+View -- Action --- Dispatch --> Reducer --> State
+                                        <--  | |
+   <-------------------------------------------
+
+The "STORE": comprised of Dispatch, Reducer and State.
+
+Dispatch: exposure point for rest of application
+          receives actions from view (created through user interaction)
+
+Reducer: pure function, receives old state, action and returns new state.
+         update to date is done immutably - does not modify inputs.
+
+State: stored in plain JS object tree.
+
+Action: plain JS action with type field.
+        type field specifies how to change something in the state.
+        carries payload
+
+# REDUX STORE DETAILS
+
+use: holds the current state value for all components
+created: createStore() function
+methods: supplies three methods
+        1. dispatch(): states state update with the provided action object
+        2. getState(): returns the current stored state value.
+        3. subscribe(): accepts callback function that runs every time
+                         an action is dispatched.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
