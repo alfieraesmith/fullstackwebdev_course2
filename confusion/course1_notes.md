@@ -1166,6 +1166,14 @@ methods: supplies three methods
         3. subscribe(): accepts callback function that runs every time
                          an action is dispatched.
 
+# React-Redux-Form
+React-Redux-Form is a JS library for REACT with redux applications for producing
+complex and high-performance forms.
+
+The package is a collection of reducer creators and action creators.
+Form data stored in Redux store in a model.
+Validation support for forms.
+
 
 
 
