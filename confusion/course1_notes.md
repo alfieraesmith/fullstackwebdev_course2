@@ -1174,6 +1174,59 @@ The package is a collection of reducer creators and action creators.
 Form data stored in Redux store in a model.
 Validation support for forms.
 
+# Redux Actions
+
+Actions: payloads of information that send data from application to the store
+         in order to effect state changes in the store.
+         Done through passing actions (JS objects) to store.dispatch() method.
+
+Action Creators functions --> Action Produced ---> Store.dispatch()
+
+Actions are plain JS Object that must have
+            - type property: indicates the type of action to be performed
+The rest of the object contains the data necessary for the action.
+
+Redux recommends that action types are defined as a set of string constants.
+
+Reducers:
+    Reducers are pure functions that take in previous state and action and
+    output the next action
+    Except in the default case, where the previous state is returned.
+
+Reducers are usually written with switch statements where the switching
+is on the action type.
+
+For example:
+
+We have 4 data sets (comments, dishes, leaders, promotions) we can use these
+to divide our reducers into 4 sub-reducers, one for each data set.
+As each data set contains a range of state changes, we are creating a set
+of reducers for each set of possible state changes.
+
+For dishes
+
+```js
+
+
+export const Dishes = (state=DISHES, action) => {
+
+    switch(action.type){
+        default: return state;
+    }
+
+};
+
+```
+Notice:
+* input for sub-reducer is state and action, although we have 'default' for state.
+* switching on action site, where a different state is returned depending on action.type
+* output for default state is the default state (state = dishes)
+
+
+
+
+
+
 
 
 
