@@ -8,6 +8,7 @@ import Header from './HeaderComponent';
 import Footer from './FooterComponent';
 import {Switch, Route, Redirect, withRouter} from 'react-router-dom';
 import {connect} from 'react-redux';
+import {addComment, fetchDishes} from "../redux/ActionCreators";
 
 // maps redux store state into props that become available to component 
 // we need to map every redux store state to the equivalent needed in props. 
@@ -20,11 +21,30 @@ const mapStateToProps = state => {
     }
 };
 
+// For the user to update the state, by adding comment to COMMMENTS array,
+// we need to make available the action generator and dispatcher
+// we do this by 'mapping' - creating a new property of props, that main can access
+// that takes in the params to make comment, gen action, dispatches action.
+// Main can then pass this method as props to dishdetail.
+const mapDispatchToProps = dispatch => ({
+    addComment: (dishId, rating, author, comment) => dispatch(addComment(dishId, rating, author, comment)),
+    fetchDishes: () => {dispatch(fetchDishes())}
+});
+
+
 class Main extends Component {
 
     constructor(props) {
         super(props);
     }
+
+    // lifecycle of react com - constructor, componentDidmount, render
+    // this will be called after constructor to get data before and rendering.
+    componentDidMount() {
+        this.props.fetchDishes();
+    }
+
+
     // we want to display a featured dish, promotion, leader on the home page (dish.featured=TRUE)
     // set dish prop in Home page component to the dish in DISHES where featured is True
     // repeat for LEADERS and PROMOTIONS arrays.
@@ -33,7 +53,9 @@ class Main extends Component {
         const HomePage = () => {
             return (
                 <Home
-                    dish={this.props.dishes.filter( (dish) =>  dish.featured === true)[0]}
+                    dish={this.props.dishes.dishes.filter( (dish) =>  dish.featured === true)[0]}
+                    dishesLoading = {this.props.dishes.isLoading}
+                    dishesErrMess = {this.props.dishes.errMess}
                     promotion={this.props.promotions.filter( (promo) =>  promo.featured === true)[0]}
                     leader={this.props.leaders.filter( (leader) =>  leader.featured === true)[0]}
                 />
@@ -48,13 +70,19 @@ class Main extends Component {
 
         // note: match is a js array and a property of props. it contains url params as key value pairs.
         // we need to find the dish and comments that matches dish id in url param.
+
+        // we've made dishes an array that contains (errMess, isLoading, dishes)
         const DishWithId = ({match}) => {
             return(
                 <DishDetail
-                     dish={this.props.dishes.filter(
-                           (dish) => dish.id === parseInt(match.params.dishId, 10))[0]}
+                     dish={this.props.dishes.dishes.filter((dish) =>
+                         dish.id === parseInt(match.params.dishId, 10))[0]}
+                     isLoading = {this.props.dishes.isLoading}
+                     errMess = {this.props.dishes.errMess}
                      comments = {this.props.comments.filter(
                          (comment) => comment.dishId === parseInt(match.params.dishId, 10))}
+
+                     addComment = {this.props.addComment}
                 />
             );
         };
@@ -79,7 +107,7 @@ class Main extends Component {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(Main));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Main));
 
 /* Menu component will receive two props - props.dishes and props.onClick
  *  When onclick is a method that when invoked, will pass the dish id param to the this.onDishSelect

@@ -1,8 +1,12 @@
 import React from 'react';
 import {Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem} from 'reactstrap';
 import {Link} from 'react-router-dom';
+import {Loading} from "./LoadingComponent";
 
-    // make Menu a functional component as it it purely presentational and
+
+// Menu will receive dishes = {isLoading, errMess, dishes={}}
+
+// make Menu a functional component as it it purely presentational and
     //has no state and takes only props in.
 
     // create a second, helper, func component to render specific menu items.
@@ -30,7 +34,7 @@ import {Link} from 'react-router-dom';
 
     const Menu = (props) => {
         // define a new array (menu) that contains a menu item for every dish in props.dishes
-        const menu = props.dishes.map((dish) => {
+        const menu = props.dishes.dishes.map((dish) => {
             return (
                 <div className="col-12 col-md-5 m-1" key={dish.id}>
                     <RenderMenuItem dish={dish}/>
@@ -38,24 +42,44 @@ import {Link} from 'react-router-dom';
             );
         });
 
-        // return menu (list of card tags) in div container.
-        return (
-            <div className="container">
-                <div className="row">
-                    <Breadcrumb>
-                        <BreadcrumbItem><Link to="/home"> Home </Link> </BreadcrumbItem>
-                        <BreadcrumbItem active>Menu</BreadcrumbItem>
-                    </Breadcrumb>
-                    <div className="col-12">
-                        <h3> Menu </h3>
-                        <hr/>
+        if (props.dishes.isLoading) {
+            return (
+                <div className="container">
+                    <div className="row">
+                        <Loading/>
                     </div>
                 </div>
-                <div className="row">
-                    {menu}
+            )
+        }
+        else if (props.dishes.errMess != null){
+            return (
+                <div className="container">
+                    <div className="row">
+                        <h4> {props.errMess} </h4>
+                    </div>
                 </div>
-            </div>
-        );
+            )
+        }
+        // return menu (list of card tags) in div container.
+        else{
+            return (
+                <div className="container">
+                    <div className="row">
+                        <Breadcrumb>
+                            <BreadcrumbItem><Link to="/home"> Home </Link> </BreadcrumbItem>
+                            <BreadcrumbItem active>Menu</BreadcrumbItem>
+                        </Breadcrumb>
+                        <div className="col-12">
+                            <h3> Menu </h3>
+                            <hr/>
+                        </div>
+                    </div>
+                    <div className="row">
+                        {menu}
+                    </div>
+                </div>
+            );
+        }
     };
 
 

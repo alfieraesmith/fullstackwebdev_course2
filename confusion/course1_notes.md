@@ -1223,6 +1223,70 @@ Notice:
 * output for default state is the default state (state = dishes)
 
 
+# validating, modifying or logging actions before state changes
+
+Reducer's should be designed to be pure functions,
+they aren't supposed to validate or
+augment their inputs (old state, action) before returning the new state.
+
+But often we would like to amend or record an action before its given over
+to the reducer.
+
+# Redux Middleware
+Provides the capability to run code AFTER an action is dispatched but before
+it reaches the reducer.
+
+Why would we want to perform some tasks before the reducer gets the action?
+    - inspecting actions and state
+    - modify actions
+    - wait and/or dispatch other actions
+    - stop actions
+    - third-part extension points
+    - logging: log that an action is being sent to the reducer for debugging
+    - async api calls: pause action, carry out async call to api, and let action
+    continue only when api returns results.
+
+
+Middleware is typically wrapped around the dispatch() function so that any action
+fired out by dispatch is passed through Middleware before being received by
+reducer.
+
+something like this -
+applyMiddleware(dispatch())
+
+# Redux Thunk
+
+"Thunk" is a cross-language term that refers to a sub-routine used to
+inject an additonal calc into another subroutine.
+
+Used to delay a calc until its result is needed and/or insert operations
+at the beginning or end of another subroutine.
+
+Redux Thunk is a kind of middleware that allows you to write action
+creators that return a function instead of an action. The aim of these
+action creator that return functions is to perform complex synchronous
+logic and return actions according to certain conditions.
+
+Standard action creators return ACTIONS (simple JS objects) but redux thunk action creators
+return functions, that in turn return actions.
+
+The functions return by redux thunk can be used to check conditions are made,
+aync api calls made etc. before returning action.
+
+Example:
+
+Redux thunk returns action creator X
+X checks that state is a1, if a1 it returns action A1, if a2, returns action A2.
+Either way reducer ultimately receives an action object.
+
+Example2:
+Redux thunk returns action creator Y:
+Y will query data from a server required to update state.
+If no data is returned in a given time, action 1 is returned,
+otherwise, action is added to action and action 2 is returned to dispatch.
+
+
+
 
 
 

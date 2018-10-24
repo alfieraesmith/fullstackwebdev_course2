@@ -14,18 +14,37 @@ import {
 } from 'reactstrap';
 import {Link} from 'react-router-dom';
 import {Control, Errors, LocalForm} from "react-redux-form";
+import {Loading} from "./LoadingComponent";
 
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
 const minLength = (len) => (val) => val && (val.length >= len);
 
-    function RenderDish ({dish}) {
-        if (dish != null)
+    function RenderDish (props) {
+        if (props.isLoading){
+            return (
+                <div className="container">
+                    <div className="row">
+                        <Loading/>
+                    </div>
+                </div>
+            )
+        }
+        if (props.errMess != null){
+            return (
+                <div className="container">
+                    <div className="row">
+                        <h4> {props.errMess} </h4>
+                    </div>
+                </div>
+            )
+        }
+        else if (props.dish != null)
             return(
                 <Card>
-                    <CardImg top src={dish.image} alt={dish.name} />
+                    <CardImg top src={props.dish.image} alt={props.dish.name} />
                     <CardBody>
-                        <CardTitle>{dish.name}</CardTitle>
-                        <CardText>{dish.description}</CardText>
+                        <CardTitle>{props.dish.name}</CardTitle>
+                        <CardText>{props.dish.description}</CardText>
                     </CardBody>
                 </Card>
             );
@@ -35,24 +54,27 @@ const minLength = (len) => (val) => val && (val.length >= len);
             );
     }
 
-    const RenderComments = ({comments}) => {
+    const RenderComments = ({comments, addComment, dishId}) => {
         console.log(comments);
         const comment_content = comments.map((comment) => {
-            return (
-                <ul className="list-unstyled" key={comment.id}>
+            return (<ul className="list-unstyled" key={comment.id}>
                     <li className="mt-2 mb-2"> {comment.comment} </li>
                     <li className="mt-2 mb-2">
                          -- {comment.author}, {' '}
                         {new Intl.DateTimeFormat('en-US', {year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}
                     </li>
-                </ul>
+                    </ul>
             );
         });
         return (
             <div>
                 <h4> Comments </h4>
                 {comment_content}
-            </div>);
+                <div>
+                    <CommentForm dishId={dishId} addComment={addComment} />
+                </div>
+            </div>)
+            ;
     };
 
     class CommentForm extends Component {
@@ -73,9 +95,8 @@ const minLength = (len) => (val) => val && (val.length >= len);
         };
 
         handleSubmit(values){
-            console.log("Current state is: " + JSON.stringify(values));
-            alert("Current state is: " + JSON.stringify(values));
             this.toggleModal();
+            this.props.addComment(this.props.dishId, values.rating, values.author, values.comment)
         }
 
         render (){
@@ -107,11 +128,11 @@ const minLength = (len) => (val) => val && (val.length >= len);
                                         </Col>
                                     </Row>
                                     <Row className="form-group">
-                                        <Label htmlFor="yourName" md={12}> <strong> Your Name </strong> </Label>
+                                        <Label htmlFor="author" md={12}> <strong> Your Name </strong> </Label>
                                         <Col md={12}>
-                                            <Control.text model=".yourName"
-                                                          id="yourName"
-                                                          name="yourName"
+                                            <Control.text model=".author"
+                                                          id="author"
+                                                          name="author"
                                                           placeholder="Your Name"
                                                           className="form-control"
                                                           validators={{
@@ -121,7 +142,7 @@ const minLength = (len) => (val) => val && (val.length >= len);
                                             />
                                             <Errors
                                                 className="text-danger"
-                                                model=".yourName"
+                                                model=".author"
                                                 show="touched"
                                                 messages={{
                                                     minLength: 'Must be greater than 2 characters',
@@ -174,10 +195,9 @@ const minLength = (len) => (val) => val && (val.length >= len);
                             <RenderDish dish={props.dish}/>
                         </div>
                         <div className="col-12 col-md-5 m-1">
-                            <RenderComments comments={props.comments}/>
-                            <div className="col-12 col-md-2">
-                                <CommentForm/>
-                            </div>
+                            <RenderComments comments={props.comments}
+                                addComment={props.addComment}
+                                dishId = {props.dish.id}/>
                         </div>
                     </div>
                 </div>);
